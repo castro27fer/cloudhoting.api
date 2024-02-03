@@ -1,0 +1,43 @@
+2023/11/22 20:52:35 Error: code=400, message=strconv.Atoi: parsing "6a": invalid syntax
+2023/11/22 20:54:49 Error: code=400, message=strconv.Atoi: parsing "6a": invalid syntax
+2023/11/22 20:59:11 Error: code=400, message=strconv.Atoi: parsing "6a": invalid syntax
+2023/11/22 21:06:16 Error: code=400, message=strconv.Atoi: parsing "6a": invalid syntax
+2023/11/22 21:07:52 Error: code=400, message=strconv.Atoi: parsing "6a": invalid syntax
+2023/11/22 21:11:29 Error: code=400, message=strconv.Atoi: parsing "6a": invalid syntax
+2023/11/22 21:14:47 Error: code=400, message=strconv.Atoi: parsing "6a": invalid syntax
+2023/11/22 21:18:57 Error: code=400, message=strconv.Atoi: parsing "6a": invalid syntax
+2023/11/22 21:19:03 Error: code=400, message=strconv.Atoi: parsing "6a": invalid syntax
+2023/11/22 21:19:17 Error: code=400, message=strconv.Atoi: parsing "6a": invalid syntax
+2023/11/22 21:22:30 Error: code=400, message=strconv.Atoi: parsing "6a": invalid syntax
+2023/11/22 21:22:40 Error: code=400, message=strconv.Atoi: parsing "6a": invalid syntax
+2023/11/22 21:22:41 Error: code=400, message=strconv.Atoi: parsing "6a": invalid syntax
+2023/11/22 21:26:50 Error: code=400, message=strconv.Atoi: parsing "6a": invalid syntax1
+2023/11/22 21:31:55 Error: code=400, message=strconv.Atoi: parsing "6a": invalid syntax | UserId: 1
+2023/12/30 20:11:55 Error: code=400, message=ERROR: duplicate key value violates unique constraint "titles_pk" (SQLSTATE 23505) | UserId: 1
+2023/12/30 20:14:08 Error: code=400, message=ERROR: duplicate key value violates unique constraint "bookmarks_unique" (SQLSTATE 23505) | UserId: 1
+2023/12/30 20:21:47 Error: code=400, message=ERROR: duplicate key value violates unique constraint "bookmarks_unique" (SQLSTATE 23505) | UserId: 1
+2023/12/30 20:26:45 Error: code=400, message=ERROR: duplicate key value violates unique constraint "titles_pk2" (SQLSTATE 23505) | UserId: 1
+2023/12/30 23:10:26 Error: code=405, message=Method Not Allowed | UserId: 1
+2023/12/30 23:25:39 Error: code=400, message=ERROR: column "collection_id" of relation "main" does not exist (SQLSTATE 42703) | UserId: 1
+2023/12/30 23:37:20 Error: code=400, message=code=415, message=Unsupported Media Type | UserId: 1
+2023/12/30 23:38:33 Error: code=400, message=code=415, message=Unsupported Media Type | UserId: 1
+2023/12/30 23:39:38 Error: code=400, message=code=415, message=Unsupported Media Type | UserId: 1
+2023/12/30 23:39:39 Error: code=400, message=code=415, message=Unsupported Media Type | UserId: 1
+2023/12/30 23:41:15 Error: code=400, message=code=415, message=Unsupported Media Type | UserId: 1
+2023/12/30 23:44:44 Error: code=400, message=code=415, message=Unsupported Media Type | UserId: 1
+2023/12/30 23:50:44 Error: code=400, message=code=415, message=Unsupported Media Type | UserId: 1
+2023/12/30 23:52:50 Error: code=400, message=code=415, message=Unsupported Media Type | UserId: 1
+2023/12/30 23:52:51 Error: code=400, message=code=415, message=Unsupported Media Type | UserId: 1
+2023/12/30 23:52:51 Error: code=400, message=code=415, message=Unsupported Media Type | UserId: 1
+2023/12/30 23:52:51 Error: code=400, message=code=415, message=Unsupported Media Type | UserId: 1
+2023/12/30 23:52:51 Error: code=400, message=code=415, message=Unsupported Media Type | UserId: 1
+2023/12/30 23:52:51 Error: code=400, message=code=415, message=Unsupported Media Type | UserId: 1
+2023/12/30 23:52:52 Error: code=400, message=code=415, message=Unsupported Media Type | UserId: 1
+2023/12/30 23:52:52 Error: code=400, message=code=415, message=Unsupported Media Type | UserId: 1
+2023/12/30 23:52:52 Error: code=400, message=code=415, message=Unsupported Media Type | UserId: 1
+2023/12/30 23:55:26 Error: code=400, message=code=415, message=Unsupported Media Type | UserId: 1
+2023/12/30 23:56:47 Error: code=400, message=code=415, message=Unsupported Media Type | UserId: 1
+2023/12/31 00:01:02 Error: code=400, message=code=415, message=Unsupported Media Type | UserId: 1
+2023/12/31 00:25:47 Error: code=400, message=ERROR: column "id" does not exist (SQLSTATE 42703) | UserId: 1
+2023/12/31 00:26:45 Error: code=400, message=record not found | UserId: 1
+2024/01/11 21:15:03 Error: code=400, message=ERROR: insert or update on table "main" violates foreign key constraint "main_category_fk" (SQLSTATE 23503) | UserId: 1

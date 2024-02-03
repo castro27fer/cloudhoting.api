@@ -1,0 +1,336 @@
+basePath: /
+definitions:
+  types.AuthRequest:
+    properties:
+      email:
+        example: example@mail.com
+        maxLength: 50
+        minLength: 8
+        type: string
+      password:
+        example: nSjYMS9wEz
+        maxLength: 24
+        minLength: 10
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  types.BookmarkRequest:
+    properties:
+      category_id:
+        example: 2
+        type: integer
+      collection_id:
+        example: 1
+        type: integer
+      icon:
+        example: xxxxx
+        maxLength: 10000
+        type: string
+      note:
+        example: This is a good site for learning
+        maxLength: 1024
+        type: string
+      title:
+        example: The Go Programming Language
+        maxLength: 512
+        type: string
+      url:
+        example: https://go.dev/
+        maxLength: 2048
+        type: string
+    required:
+    - category_id
+    - collection_id
+    - title
+    - url
+    type: object
+  types.CategoryRequest:
+    properties:
+      collection_id:
+        example: 1
+        type: integer
+      color:
+        example: blu
+        maxLength: 3
+        type: string
+      name:
+        example: Youtube Videos
+        maxLength: 50
+        type: string
+    required:
+    - collection_id
+    - color
+    - name
+    type: object
+  types.CollectionRequest:
+    properties:
+      name:
+        example: Social Networks
+        maxLength: 50
+        type: string
+    required:
+    - name
+    type: object
+host: localhost:3000
+info:
+  contact: {}
+  title: Links App API
+  version: "1.0"
+paths:
+  /auth/login:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: ' '
+        in: body
+        name: Body
+        required: true
+        schema:
+          $ref: '#/definitions/types.AuthRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Login
+      tags:
+      - Auth
+  /auth/register:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Request
+        in: body
+        name: Body
+        required: true
+        schema:
+          $ref: '#/definitions/types.AuthRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Register
+      tags:
+      - Auth
+  /bookmark:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: ' '
+        in: body
+        name: Body
+        required: true
+        schema:
+          $ref: '#/definitions/types.BookmarkRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - Bearer: []
+      summary: Create Bookmark
+      tags:
+      - Bookmarks
+  /bookmark/{bookmark_id}:
+    delete:
+      consumes:
+      - '*/*'
+      parameters:
+      - description: Bookmark Id
+        in: path
+        name: bookmark_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - Bearer: []
+      summary: Delete Bookmark
+      tags:
+      - Bookmarks
+    patch:
+      consumes:
+      - application/json
+      parameters:
+      - description: Bookmark Id
+        in: path
+        name: bookmark_id
+        required: true
+        type: integer
+      - description: ' '
+        in: body
+        name: cuerpo
+        required: true
+        schema:
+          $ref: '#/definitions/types.BookmarkRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - Bearer: []
+      summary: Update Bookmark
+      tags:
+      - Bookmarks
+  /bookmarks/{category_id}:
+    get:
+      consumes:
+      - '*/*'
+      parameters:
+      - description: Category Id
+        in: path
+        name: category_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+      security:
+      - Bearer: []
+      summary: Get Bookmarks
+      tags:
+      - Bookmarks
+  /category:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: ' '
+        in: body
+        name: Body
+        required: true
+        schema:
+          $ref: '#/definitions/types.CategoryRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - Bearer: []
+      summary: Create Category
+      tags:
+      - Categories
+  /category/{id}:
+    delete:
+      consumes:
+      - '*/*'
+      parameters:
+      - description: Category Id
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - Bearer: []
+      summary: Delete Category
+      tags:
+      - Categories
+  /collection:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: ' '
+        in: body
+        name: Body
+        required: true
+        schema:
+          $ref: '#/definitions/types.CollectionRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - Bearer: []
+      summary: Create Collection
+      tags:
+      - Collections
+  /collection/{collection_id}:
+    delete:
+      consumes:
+      - '*/*'
+      parameters:
+      - description: Collection Id
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - Bearer: []
+      summary: Delete Collection
+      tags:
+      - Collections
+  /collections:
+    get:
+      consumes:
+      - '*/*'
+      produces:
+      - text/plain
+      responses:
+        "200":
+          description: OK
+      security:
+      - Bearer: []
+      summary: Get Collections
+      tags:
+      - Collections
+schemes:
+- http
+securityDefinitions:
+  Bearer:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"
