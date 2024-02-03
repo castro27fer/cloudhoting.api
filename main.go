@@ -13,7 +13,6 @@ import (
 	_ "github.com/ebarquero85/link-backend/docs/links" // Necesario para que funcione Swagger
 	"github.com/go-playground/validator"
 
-	"github.com/ebarquero85/link-backend/src/database"
 	"github.com/ebarquero85/link-backend/src/handlers"
 	"github.com/ebarquero85/link-backend/src/middlewares"
 )
@@ -54,8 +53,8 @@ func init() {
 		panic(err.Error())
 	}
 
-	database.Connect("postgres")
-	database.Databases.DBPostgresql.Instance.Migrator().CreateTable()
+	// database.Connect("postgres")
+	// database.Databases.DBPostgresql.Instance.Migrator().CreateTable()
 }
 
 // @title Links App API
