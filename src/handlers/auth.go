@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/ebarquero85/link-backend/src/config"
@@ -44,37 +45,54 @@ func HandlePostRegister(c echo.Context) (err error) {
 	}
 
 	user := models.UserModel{
-		Password:  password,
+		Name:      AuthRequest.Name,
+		LastName:  AuthRequest.LastName,
 		Email:     AuthRequest.Email,
-		Confirmed: config.DEFAULT_CONFIRMED,
+		Password:  password,
+		Confirmed: true, //config.DEFAULT_CONFIRMED,
 		Language:  config.LANGUAGE,
 	}
 
+	// var user2 models.UserModel
 	// Create User
 	if err = user.Create(); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
-	// Create first Collection
-	collection := models.CollectionModel{
-		UserId: user.UserId,
-		Name:   messages.GetMessageTranslation("FIRST_COLLECTION"),
+	fmt.Println(user)
+
+	//create account
+
+	account := models.AccountModel{
+		UserId:   uint(user.UserId),
+		Email:    AuthRequest.Email,
+		Password: password,
 	}
 
-	if err = collection.Create(); err != nil {
+	if err = account.Create(); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
+	// Create first Collection
+	// collection := models.CollectionModel{
+	// 	UserId: user.UserId,
+	// 	Name:   messages.GetMessageTranslation("FIRST_COLLECTION"),
+	// }
+
+	// if err = collection.Create(); err != nil {
+	// 	return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	// }
+
 	// Associate first collection to created user
-	db.Databases.DBPostgresql.Instance.Model(user).Update("collection_default", collection.CollectionId)
+	// db.Databases.DBPostgresql.Instance.Model(user).Update("collection_default", collection.CollectionId)
 
 	// Generate token
-	token := "" //GenerateJWT(&user)
+	// token := "" //GenerateJWT(&user)
 
 	return c.JSON(http.StatusOK, types.JsonResponse[string]{
 		Status:  messages.SUCCESS,
 		Message: messages.GetMessageTranslation("USER_REGISTERED"),
-		Data:    token,
+		// Data:    token,
 	})
 
 }

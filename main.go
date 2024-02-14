@@ -55,7 +55,8 @@ func init() {
 	}
 
 	database.Connect("postgres")
-	// database.Databases.DBPostgresql.Instance.Migrator().CreateTable()
+
+	// database.Databases.DBPostgresql.Instance.Migrator().AutoMigrate(&models.UserModel{}, &models.AccountModel{})
 }
 
 // @title Links App API
@@ -78,7 +79,7 @@ func main() {
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
 	e.Use(middleware.CORS())
-	e.Use(middlewares.ValidateTokenMiddleware)
+	// e.Use(middlewares.ValidateTokenMiddleware)
 	e.Use(middlewares.ErrorsLogMiddleware)
 
 	// Swagger
