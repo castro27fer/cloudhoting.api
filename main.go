@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 	"os"
 
@@ -11,7 +12,8 @@ import (
 	echoSwagger "github.com/swaggo/echo-swagger"
 
 	_ "github.com/ebarquero85/link-backend/docs/links" // Necesario para que funcione Swagger
-	"github.com/go-playground/validator"
+	ut "github.com/go-playground/universal-translator"
+	"github.com/go-playground/validator/v10"
 
 	"github.com/ebarquero85/link-backend/src/database"
 	"github.com/ebarquero85/link-backend/src/handlers"
@@ -22,24 +24,35 @@ type CustomValidator struct {
 	validator *validator.Validate
 }
 
+// use a single instance , it caches struct info
+var (
+	uni      *ut.UniversalTranslator
+	validate *validator.Validate
+)
+
 func (cv *CustomValidator) Validate(i interface{}) error {
 
 	if err := cv.validator.Struct(i); err != nil {
 
-		// for _, err := range err.(validator.ValidationErrors) {
+		// translate all error at once
+		// errs := err.(validator.ValidationErrors)
 
-		// 	fmt.Println(err.Namespace())
-		// 	fmt.Println(err.Field())
-		// 	fmt.Println(err.StructNamespace())
-		// 	fmt.Println(err.StructField())
-		// 	fmt.Println(err.Tag())
-		// 	fmt.Println(err.ActualTag())
-		// 	fmt.Println(err.Kind())
-		// 	fmt.Println(err.Type())
-		// 	fmt.Println(err.Value())
-		// 	fmt.Println(err.Param())
-		// 	fmt.Println()
-		// }
+		// fmt.Println(errs.Translate(trans))
+
+		for _, err := range err.(validator.ValidationErrors) {
+
+			fmt.Println(err.Namespace())
+			fmt.Println(err.Field())
+			fmt.Println(err.StructNamespace())
+			fmt.Println(err.StructField())
+			fmt.Println(err.Tag())
+			fmt.Println(err.ActualTag())
+			fmt.Println(err.Kind())
+			fmt.Println(err.Type())
+			fmt.Println(err.Value())
+			fmt.Println(err.Param())
+			fmt.Println()
+		}
 
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
@@ -73,14 +86,28 @@ func main() {
 	e := echo.New()
 
 	// Se agrega el paquete Validator a Echo
-	e.Validator = &CustomValidator{validator: validator.New()}
+	e.Validator = &CustomValidator{validator: validator.New()} //descomentariar para activar las validaciones
+
+	//Nuevo fer
+
+	// NOTE: ommitting allot of error checking for brevity
+
+	// en := en.New()
+	// uni = ut.New(en, en)
+
+	// // this is usually know or extracted from http 'Accept-Language' header
+	// // also see uni.FindTranslator(...)
+	// trans, _ := uni.GetTranslator("en")
+
+	// validate = validator.New()
+	// en_translations.RegisterDefaultTranslations(validate, trans)
 
 	// Middlewares
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
 	e.Use(middleware.CORS())
-	// e.Use(middlewares.ValidateTokenMiddleware)
-	e.Use(middlewares.ErrorsLogMiddleware)
+	e.Use(middlewares.ValidateTokenMiddleware)
+	// e.Use(middlewares.ErrorsLogMiddleware)
 
 	// Swagger
 	e.GET("/swagger/*", echoSwagger.WrapHandler) // http://localhost:3000/swagger/index.html

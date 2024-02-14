@@ -35,6 +35,7 @@ func HandlePostRegister(c echo.Context) (err error) {
 	AuthRequest := new(types.AuthRequest)
 
 	if err = validators.Request(AuthRequest, c); err != nil {
+		// fmt.Printf("%v", err)
 		return err
 	}
 

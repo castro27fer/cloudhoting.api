@@ -8,7 +8,7 @@ type JsonResponse[T interface{}] struct {
 
 type AuthRequest struct {
 	Email    string `json:"email" validate:"required,email,min=8,max=50" minLength:"8" maxLength:"50" example:"example@mail.com"`
-	Password string `json:"password" validate:"required,min=10,max=24" minLength:"10" maxLength:"24" example:"nSjYMS9wEz"`
+	Password string `json:"password" validate:"required,min=6,max=24" minLength:"6" maxLength:"24" example:"nSjYMS9wEz"`
 	Name     string `json:"name" validate:"required,min=3,max=40" example:"Jennifer"`
 	LastName string `json:"lastName" validate:"required,min=3,max=40" example:"Zeledon"`
 }
