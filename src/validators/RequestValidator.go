@@ -1,21 +1,16 @@
 package validators
 
 import (
-	"fmt"
-	"net/http"
-
 	"github.com/labstack/echo/v4"
 )
 
 func Request[T comparable](data *T, c echo.Context) (err error) {
 
 	if err = c.Bind(data); err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+		return err
 	}
 
 	if err = c.Validate(data); err != nil {
-
-		fmt.Printf("%v", err)
 		return err
 	}
 

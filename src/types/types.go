@@ -1,5 +1,10 @@
 package types
 
+type Error_Request struct {
+	Name    string `json:"name"`
+	Message string `json:"message"`
+}
+
 type JsonResponse[T interface{}] struct {
 	Status  string `json:"status"`
 	Message string `json:"message"`
