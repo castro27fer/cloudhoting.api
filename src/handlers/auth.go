@@ -8,6 +8,7 @@ import (
 	db "github.com/ebarquero85/link-backend/src/database"
 	"github.com/ebarquero85/link-backend/src/messages"
 	"github.com/ebarquero85/link-backend/src/models"
+	translation "github.com/ebarquero85/link-backend/src/translations"
 	"github.com/ebarquero85/link-backend/src/types"
 	"github.com/ebarquero85/link-backend/src/utils"
 	"github.com/ebarquero85/link-backend/src/validators"
@@ -35,7 +36,6 @@ func HandlePostRegister(c echo.Context) (err error) {
 	AuthRequest := new(types.AuthRequest)
 
 	if err = validators.Request(AuthRequest, c); err != nil {
-
 		return err
 	}
 
@@ -90,9 +90,20 @@ func HandlePostRegister(c echo.Context) (err error) {
 	// Generate token
 	// token := "" //GenerateJWT(&user)
 
+	// return c.JSON(http.StatusOK, types.JsonResponse[string]{
+	// 	Status:  messages.SUCCESS,
+	// 	Message: messages.GetMessageTranslation("USER_REGISTERED"),
+	// 	// Data:    token,
+	// })
+
+	trans := translation.Get_translator()
+	text, _ := trans.T("required", "Fernando")
+
+	fmt.Printf("%v", trans.Locale())
+
 	return c.JSON(http.StatusOK, types.JsonResponse[string]{
 		Status:  messages.SUCCESS,
-		Message: messages.GetMessageTranslation("USER_REGISTERED"),
+		Message: text,
 		// Data:    token,
 	})
 

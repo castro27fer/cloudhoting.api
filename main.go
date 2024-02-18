@@ -1,8 +1,6 @@
 package main
 
 import (
-	"fmt"
-	"net/http"
 	"os"
 
 	"github.com/joho/godotenv"
@@ -12,64 +10,14 @@ import (
 	echoSwagger "github.com/swaggo/echo-swagger"
 
 	_ "github.com/ebarquero85/link-backend/docs/links" // Necesario para que funcione Swagger
-	"github.com/go-playground/locales/en"
-	ut "github.com/go-playground/universal-translator"
-	"github.com/go-playground/validator"
 
 	"github.com/ebarquero85/link-backend/src/database"
 	"github.com/ebarquero85/link-backend/src/handlers"
 	"github.com/ebarquero85/link-backend/src/middlewares"
-	en_translations "github.com/ebarquero85/link-backend/src/translations/en"
-	"github.com/ebarquero85/link-backend/src/types"
+
+	translation "github.com/ebarquero85/link-backend/src/translations"
+	requestValidation "github.com/ebarquero85/link-backend/src/validators"
 )
-
-type CustomValidator struct {
-	validator *validator.Validate
-	trans     ut.Translator
-}
-
-// use a single instance , it caches struct info
-var (
-	uni *ut.UniversalTranslator
-	// validate *validator.Validate
-)
-
-func (cv *CustomValidator) Validate(i interface{}) error {
-
-	if err := cv.validator.Struct(i); err != nil {
-
-		var errors2 []types.Error_Request
-
-		for _, err := range err.(validator.ValidationErrors) {
-
-			errors2 = append(errors2, types.Error_Request{Name: err.Field(), Message: err.Translate(cv.trans)})
-
-			fmt.Println("namespace", err.Namespace())
-			fmt.Println("field", err.Field())
-			fmt.Println("structNamespace", err.StructNamespace())
-			fmt.Println("structField", err.StructField())
-			fmt.Println("Tag", err.Tag())
-			fmt.Println("ActualTag", err.ActualTag())
-			fmt.Println("Kind", err.Kind())
-			fmt.Println("type", err.Type())
-			fmt.Println("value", err.Value())
-			fmt.Println("param", err.Param())
-			fmt.Println("error", err.Translate(cv.trans))
-		}
-
-		// Convertir la instancia a una cadena JSON
-		// jsonString, err := json.Marshal(errors2)
-		// if err != nil {
-		// 	fmt.Println("Error al convertir a JSON:", err)
-		// 	return err
-		// }
-
-		//return errors.New(string(jsonString))
-		return echo.NewHTTPError(http.StatusBadRequest, errors2)
-	}
-
-	return nil
-}
 
 func init() {
 
@@ -96,18 +44,10 @@ func main() {
 	// Echo instance
 	e := echo.New()
 
-	en := en.New()
-	uni = ut.New(en, en)
+	translation.Init_translate_default()
+	translation.Load_translates("en")
 
-	// this is usually know or extracted from http 'Accept-Language' header
-	// also see uni.FindTranslator(...)
-	trans, _ := uni.GetTranslator("en")
-
-	// Se agrega el paquete Validator a Echo
-	v := validator.New()
-	e.Validator = &CustomValidator{validator: v, trans: trans} //descomentariar para activar las validaciones
-
-	en_translations.RegisterDefaultTranslations(v, trans)
+	e.Validator = requestValidation.Init_Request_validation()
 
 	// Middlewares
 	e.Use(middleware.Logger())

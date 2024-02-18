@@ -18,7 +18,7 @@ func RegisterDefaultTranslations(v *validator.Validate, trans ut.Translator) (er
 	}{
 		{
 			tag:         "required",
-			translation: "field {0} is required",
+			translation: "field {0} is required 2222",
 			override:    false,
 		},
 	}
