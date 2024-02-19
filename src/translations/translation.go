@@ -43,6 +43,21 @@ var translations_ES = []translation{
 		translation: "El campo {0} require minimo {1} caracteres",
 		override:    false,
 	},
+	{
+		tag:         "bad_request",
+		translation: "Existen campos incompletos",
+		override:    false,
+	},
+	{
+		tag:         "user_register",
+		translation: "usuario registrado con exito",
+		override:    false,
+	},
+	{
+		tag:         "user_register_subject",
+		translation: "Activación de cuenta en cloud hosting",
+		override:    false,
+	},
 }
 
 var translations_EN = []translation{
@@ -64,6 +79,21 @@ var translations_EN = []translation{
 	{
 		tag:         "min",
 		translation: "The field {0} require minimum {1} characters",
+		override:    false,
+	},
+	{
+		tag:         "bad_request",
+		translation: "There are incomplete fields",
+		override:    false,
+	},
+	{
+		tag:         "user_register",
+		translation: "Registered user successfully",
+		override:    false,
+	},
+	{
+		tag:         "user_register_subject",
+		translation: "Cloud hosting account activation",
 		override:    false,
 	},
 }
@@ -133,13 +163,6 @@ func Init_translate_default() ut.Translator {
 	//get translator in english
 	trans, _ = uni.GetTranslator("en")
 
-	return trans
-}
-
-func Change_translate(translator string, v *validator.Validate) ut.Translator {
-	//change translate
-	// trans, _ = uni.GetTranslator(translator)
-	// es_translations.RegisterDefaultTranslations(v, trans)
 	return trans
 }
 

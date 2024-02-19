@@ -1,11 +1,9 @@
 package validators
 
 import (
-	"fmt"
 	"net/http"
 
 	translations "github.com/ebarquero85/link-backend/src/translations"
-	en_translations "github.com/ebarquero85/link-backend/src/translations/en"
 	"github.com/ebarquero85/link-backend/src/types"
 	"github.com/go-playground/validator"
 	"github.com/labstack/echo/v4"
@@ -18,8 +16,6 @@ type CustomValidator struct {
 func Init_Request_validation() *CustomValidator {
 
 	v := validator.New()
-
-	en_translations.RegisterDefaultTranslations(v, translations.Get_translator())
 
 	return &CustomValidator{validator: v} //descomentariar para activar las validaciones
 }
@@ -45,6 +41,12 @@ func (cv *CustomValidator) Validate(i interface{}) error {
 		var errors2 []types.Error_Request
 
 		trans2 := translations.Get_translator()
+
+		message, found_message := trans2.T("bad_request")
+		if found_message != nil {
+			message = "There are incomplete fields"
+		}
+
 		for _, err := range err.(validator.ValidationErrors) {
 
 			name := err.Field()
@@ -63,21 +65,15 @@ func (cv *CustomValidator) Validate(i interface{}) error {
 				Message: text,
 			})
 
-			fmt.Println("namespace", err.Namespace())
-			fmt.Println("field", err.Field())
-			fmt.Println("structNamespace", err.StructNamespace())
-			fmt.Println("structField", err.StructField())
-			fmt.Println("Tag", err.Tag())
-			fmt.Println("ActualTag", err.ActualTag())
-			fmt.Println("Kind", err.Kind())
-			fmt.Println("type", err.Type())
-			fmt.Println("value", err.Value())
-			fmt.Println("param", err.Param())
-			fmt.Println("error", err.Translate(trans2))
-
 		}
 
-		return echo.NewHTTPError(http.StatusBadRequest, errors2)
+		return echo.NewHTTPError(http.StatusBadRequest, struct {
+			Message     string                `json:"message"`
+			Validations []types.Error_Request `json:"validations"`
+		}{
+			Message:     message,
+			Validations: errors2,
+		})
 	}
 
 	return nil

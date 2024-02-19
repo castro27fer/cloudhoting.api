@@ -3,9 +3,11 @@ package handlers
 import (
 	"fmt"
 	"net/http"
+	"net/mail"
 
 	"github.com/ebarquero85/link-backend/src/config"
 	db "github.com/ebarquero85/link-backend/src/database"
+	"github.com/ebarquero85/link-backend/src/email"
 	"github.com/ebarquero85/link-backend/src/messages"
 	"github.com/ebarquero85/link-backend/src/models"
 	translation "github.com/ebarquero85/link-backend/src/translations"
@@ -74,8 +76,15 @@ func HandlePostRegister(c echo.Context) (err error) {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
+	if err = email.SendActivationEmail(mail.Address{
+		Name:    user.Name + " " + user.LastName,
+		Address: account.Email,
+	}); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+
 	trans := translation.Get_translator()
-	text, _ := trans.T("required", "Fernando")
+	text, _ := trans.T("user_register")
 
 	return c.JSON(http.StatusOK, types.JsonResponse[string]{
 		Status:  messages.SUCCESS,
