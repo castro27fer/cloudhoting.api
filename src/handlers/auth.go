@@ -74,32 +74,8 @@ func HandlePostRegister(c echo.Context) (err error) {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
-	// Create first Collection
-	// collection := models.CollectionModel{
-	// 	UserId: user.UserId,
-	// 	Name:   messages.GetMessageTranslation("FIRST_COLLECTION"),
-	// }
-
-	// if err = collection.Create(); err != nil {
-	// 	return echo.NewHTTPError(http.StatusBadRequest, err.Error())
-	// }
-
-	// Associate first collection to created user
-	// db.Databases.DBPostgresql.Instance.Model(user).Update("collection_default", collection.CollectionId)
-
-	// Generate token
-	// token := "" //GenerateJWT(&user)
-
-	// return c.JSON(http.StatusOK, types.JsonResponse[string]{
-	// 	Status:  messages.SUCCESS,
-	// 	Message: messages.GetMessageTranslation("USER_REGISTERED"),
-	// 	// Data:    token,
-	// })
-
 	trans := translation.Get_translator()
 	text, _ := trans.T("required", "Fernando")
-
-	fmt.Printf("%v", trans.Locale())
 
 	return c.JSON(http.StatusOK, types.JsonResponse[string]{
 		Status:  messages.SUCCESS,

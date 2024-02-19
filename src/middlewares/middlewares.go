@@ -10,9 +10,21 @@ import (
 
 	"github.com/ebarquero85/link-backend/src/handlers"
 	"github.com/ebarquero85/link-backend/src/messages"
+	translate "github.com/ebarquero85/link-backend/src/translations"
 	"github.com/ebarquero85/link-backend/src/types"
 	"github.com/labstack/echo/v4"
 )
+
+// change translator, get language of the headers of request
+func LanguageUser(next echo.HandlerFunc) echo.HandlerFunc {
+	return func(c echo.Context) error {
+
+		header := c.Request().Header
+		translate.Change_translator(header.Get("Accept-Language"))
+
+		return next(c)
+	}
+}
 
 // Middleware para validar el token
 func ValidateTokenMiddleware(next echo.HandlerFunc) echo.HandlerFunc {

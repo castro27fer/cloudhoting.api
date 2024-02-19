@@ -1,10 +1,10 @@
 package validators
 
 import (
+	"fmt"
 	"net/http"
 
-	"github.com/ebarquero85/link-backend/src/translations"
-	translation "github.com/ebarquero85/link-backend/src/translations"
+	translations "github.com/ebarquero85/link-backend/src/translations"
 	en_translations "github.com/ebarquero85/link-backend/src/translations/en"
 	"github.com/ebarquero85/link-backend/src/types"
 	"github.com/go-playground/validator"
@@ -44,32 +44,39 @@ func (cv *CustomValidator) Validate(i interface{}) error {
 
 		var errors2 []types.Error_Request
 
-		trans2 := translation.Change_translate("es", cv.validator)
+		trans2 := translations.Get_translator()
 		for _, err := range err.(validator.ValidationErrors) {
 
-			errors2 = append(errors2, types.Error_Request{Name: err.Field(), Message: err.Translate(trans2)})
+			name := err.Field()
+			fieldName, found_field := trans2.T(name)
+			if found_field != nil {
+				fieldName = name
+			}
 
-			// fmt.Println("namespace", err.Namespace())
-			// fmt.Println("field", err.Field())
-			// fmt.Println("structNamespace", err.StructNamespace())
-			// fmt.Println("structField", err.StructField())
-			// fmt.Println("Tag", err.Tag())
-			// fmt.Println("ActualTag", err.ActualTag())
-			// fmt.Println("Kind", err.Kind())
-			// fmt.Println("type", err.Type())
-			// fmt.Println("value", err.Value())
-			// fmt.Println("param", err.Param())
-			// fmt.Println("error", err.Translate(cv.trans))
+			text, found := trans2.T(err.Tag(), fieldName, err.Param())
+			if found != nil {
+				text = err.Translate(trans2)
+			}
+
+			errors2 = append(errors2, types.Error_Request{
+				Name:    name,
+				Message: text,
+			})
+
+			fmt.Println("namespace", err.Namespace())
+			fmt.Println("field", err.Field())
+			fmt.Println("structNamespace", err.StructNamespace())
+			fmt.Println("structField", err.StructField())
+			fmt.Println("Tag", err.Tag())
+			fmt.Println("ActualTag", err.ActualTag())
+			fmt.Println("Kind", err.Kind())
+			fmt.Println("type", err.Type())
+			fmt.Println("value", err.Value())
+			fmt.Println("param", err.Param())
+			fmt.Println("error", err.Translate(trans2))
+
 		}
 
-		// Convertir la instancia a una cadena JSON
-		// jsonString, err := json.Marshal(errors2)
-		// if err != nil {
-		// 	fmt.Println("Error al convertir a JSON:", err)
-		// 	return err
-		// }
-
-		//return errors.New(string(jsonString))
 		return echo.NewHTTPError(http.StatusBadRequest, errors2)
 	}
 

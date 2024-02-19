@@ -45,7 +45,7 @@ func main() {
 	e := echo.New()
 
 	translation.Init_translate_default()
-	translation.Load_translates("en")
+	translation.Load_languages()
 
 	e.Validator = requestValidation.Init_Request_validation()
 
@@ -54,6 +54,7 @@ func main() {
 	e.Use(middleware.Recover())
 	e.Use(middleware.CORS())
 	e.Use(middlewares.ValidateTokenMiddleware)
+	e.Use(middlewares.LanguageUser)
 	// e.Use(middlewares.ErrorsLogMiddleware)
 
 	// Swagger
