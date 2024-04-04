@@ -4,6 +4,7 @@ import (
 	"crypto/md5"
 	"encoding/hex"
 	"io"
+	"math/rand"
 	"strconv"
 
 	"github.com/labstack/echo/v4"
@@ -39,4 +40,8 @@ func GetParam(c echo.Context, name string) int {
 
 	return value
 
+}
+
+func GenerateRandomNumber() int {
+	return rand.Intn(999999-100000) + 100000
 }

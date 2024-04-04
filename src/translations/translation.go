@@ -96,6 +96,11 @@ var translations_EN = []translation{
 		translation: "Cloud hosting account activation",
 		override:    false,
 	},
+	{
+		tag:         "send_code",
+		translation: "Send code",
+		override:    false,
+	},
 }
 
 type Languages struct {

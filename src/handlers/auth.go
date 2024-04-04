@@ -4,6 +4,9 @@ import (
 	"fmt"
 	"net/http"
 	"net/mail"
+	"os"
+	"strconv"
+	"time"
 
 	"github.com/ebarquero85/link-backend/src/config"
 	db "github.com/ebarquero85/link-backend/src/database"
@@ -35,14 +38,16 @@ type Data struct {
 // @Router /auth/register [post]
 func HandlePostRegister(c echo.Context) (err error) {
 
+	//get request
 	AuthRequest := new(types.AuthRequest)
 
+	//valid reqruest
 	if err = validators.Request(AuthRequest, c); err != nil {
 		return err
 	}
 
 	password := ""
-
+	//hash password
 	if password, err = utils.GeneratePasswordHash(AuthRequest.Password); err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
@@ -76,13 +81,6 @@ func HandlePostRegister(c echo.Context) (err error) {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
-	if err = email.SendActivationEmail(mail.Address{
-		Name:    user.Name + " " + user.LastName,
-		Address: account.Email,
-	}); err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
-	}
-
 	trans := translation.Get_translator()
 	text, _ := trans.T("user_register")
 
@@ -92,6 +90,86 @@ func HandlePostRegister(c echo.Context) (err error) {
 		// Data:    token,
 	})
 
+}
+
+func HandleCodeVerify(c echo.Context) (err error) {
+
+	//get request
+	AuthRequest := new(types.CodeVerify)
+
+	//valid reqruest
+	if err = validators.Request(AuthRequest, c); err != nil {
+		return err
+	}
+
+	var codes []models.CodeVerifyModel
+
+	//get all codes send with the email
+	db.Databases.DBPostgresql.Instance.Where("email=?", AuthRequest.Email).Find(&codes)
+
+	if len(codes) > 0 {
+
+		//update statu code a Cancel
+		for _, code := range codes {
+
+			code.Status = "Cancel"
+			code.Update()
+
+		}
+
+	}
+
+	//generate code of six digito
+	code := utils.GenerateRandomNumber()
+
+	//create new code
+	codeVerify := models.CodeVerifyModel{
+		Email:  AuthRequest.Email,
+		Code:   strconv.Itoa(code),
+		Status: "NotVerify",
+	}
+
+	if err = codeVerify.Create(); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+
+	var expired_code string = os.Getenv("CODE_VERIFY_EXPIRATION")
+
+	// Convertir el string a time.Duration
+	duration, err := time.ParseDuration(expired_code)
+
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+
+	//expire code
+	time.AfterFunc(duration, func() {
+
+		codeVerify.Status = "Expired"
+		codeVerify.Update()
+	})
+
+	//send email with code activate
+	if err = email.SendActivationEmail(mail.Address{
+		Name:    AuthRequest.Names,
+		Address: AuthRequest.Email,
+	}, codeVerify.Code); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+
+	trans := translation.Get_translator()
+	text, _ := trans.T("send_code")
+
+	return c.JSON(http.StatusOK, types.JsonResponse[string]{
+		Status:  messages.SUCCESS,
+		Message: text,
+		// Data:    token,
+	})
+
+}
+
+func GenerateRandomNumber() {
+	panic("unimplemented")
 }
 
 // @Summary Login

@@ -14,6 +14,7 @@ import (
 	"github.com/ebarquero85/link-backend/src/database"
 	"github.com/ebarquero85/link-backend/src/handlers"
 	"github.com/ebarquero85/link-backend/src/middlewares"
+	"github.com/ebarquero85/link-backend/src/models"
 
 	translation "github.com/ebarquero85/link-backend/src/translations"
 	requestValidation "github.com/ebarquero85/link-backend/src/validators"
@@ -28,7 +29,7 @@ func init() {
 
 	database.Connect("postgres")
 
-	// database.Databases.DBPostgresql.Instance.Migrator().AutoMigrate(&models.UserModel{}, &models.AccountModel{})
+	database.Databases.DBPostgresql.Instance.Migrator().AutoMigrate(&models.UserModel{}, &models.AccountModel{}, &models.CodeVerifyModel{})
 }
 
 // @title Links App API
@@ -63,6 +64,7 @@ func main() {
 	// Auth
 	e.POST("/auth/register", handlers.HandlePostRegister)
 	e.POST("/auth/login", handlers.HandlePostLogin)
+	e.POST("/auth/codeVerify", handlers.HandleCodeVerify)
 
 	// Collections
 	e.GET("/collections", handlers.HandleGetCollections)

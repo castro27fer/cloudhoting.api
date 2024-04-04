@@ -14,9 +14,10 @@ import (
 
 type Dest struct {
 	Name string
+	Code string
 }
 
-func SendActivationEmail(to mail.Address) (err error) {
+func SendActivationEmail(to mail.Address, code string) (err error) {
 
 	translator := language.Get_translator()
 	subject, err := translator.T("user_register_subject")
@@ -24,14 +25,14 @@ func SendActivationEmail(to mail.Address) (err error) {
 		subject = "Cloud hosting account activation"
 	}
 
-	if err = SendEmail(to, subject); err != nil {
+	if err = SendEmail(to, subject, code); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func SendEmail(to mail.Address, subject string) (err error) {
+func SendEmail(to mail.Address, subject string, Code string) (err error) {
 
 	var (
 		email          = os.Getenv("EMAIL")
@@ -43,7 +44,7 @@ func SendEmail(to mail.Address, subject string) (err error) {
 
 	from := mail.Address{Name: email_name, Address: email}
 
-	dest := Dest{Name: to.Address}
+	dest := Dest{Name: to.Name, Code: Code}
 
 	message := ""
 
