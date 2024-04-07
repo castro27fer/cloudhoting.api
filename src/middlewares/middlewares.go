@@ -8,12 +8,53 @@ import (
 	"strconv"
 	"strings"
 
+	db "github.com/ebarquero85/link-backend/src/database"
 	"github.com/ebarquero85/link-backend/src/handlers"
 	"github.com/ebarquero85/link-backend/src/messages"
+	"github.com/ebarquero85/link-backend/src/models"
 	translate "github.com/ebarquero85/link-backend/src/translations"
+	translation "github.com/ebarquero85/link-backend/src/translations"
 	"github.com/ebarquero85/link-backend/src/types"
 	"github.com/labstack/echo/v4"
 )
+
+func VerifyCode(next echo.HandlerFunc) echo.HandlerFunc {
+	return func(c echo.Context) error {
+
+		trans := translation.Get_translator()
+		message_error, _ := trans.T("conde_verify_invalid")
+
+		data := new(types.AuthRequest)
+		if err := c.Bind(data); err != nil {
+			return err // Manejar el error adecuadamente según tus necesidades
+		}
+
+		code := c.Request().Header.Get("Code-Verify")
+		if code == "" {
+
+			return c.JSON(http.StatusBadRequest, types.JsonResponse[string]{
+				Status:  strconv.Itoa(http.StatusBadRequest),
+				Message: message_error,
+			})
+		}
+
+		var codeVerify models.CodeVerifyModel
+		result := db.Databases.DBPostgresql.Instance.Where("email=? AND code=? AND status=?", data.Email, code, "NotVerify").First(&codeVerify)
+
+		//validar que no este vació
+		if result.Error != nil {
+			return c.JSON(http.StatusNotAcceptable, types.JsonResponse[string]{
+				Status:  strconv.Itoa(http.StatusNotAcceptable),
+				Message: message_error,
+			})
+		}
+
+		codeVerify.Status = "Verified"
+		codeVerify.Update()
+
+		return next(c)
+	}
+}
 
 // change translator, get language of the headers of request
 func LanguageUser(next echo.HandlerFunc) echo.HandlerFunc {

@@ -101,6 +101,11 @@ var translations_EN = []translation{
 		translation: "Send code",
 		override:    false,
 	},
+	{
+		tag:         "conde_verify_invalid",
+		translation: "invalid verification code",
+		override:    false,
+	},
 }
 
 type Languages struct {

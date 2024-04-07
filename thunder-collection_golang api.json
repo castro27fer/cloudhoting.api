@@ -1,0 +1,88 @@
+{
+    "client": "Thunder Client",
+    "collectionName": "golang api",
+    "dateExported": "2024-04-07T05:02:33.336Z",
+    "version": "1.1",
+    "folders": [
+        {
+            "_id": "6678b3e3-380d-4a40-a314-7611ce09a068",
+            "name": "auth",
+            "containerId": "",
+            "created": "2024-04-04T02:19:46.901Z",
+            "sortNum": 10000
+        }
+    ],
+    "requests": [
+        {
+            "_id": "ff1f61a2-2c89-4721-9c43-80789958eb2a",
+            "colId": "19f0318f-35c2-4e1e-a0a6-09a7ff3da212",
+            "containerId": "6678b3e3-380d-4a40-a314-7611ce09a068",
+            "name": "get code verify",
+            "url": "http://localhost:3000/auth/codeVerify",
+            "method": "POST",
+            "sortNum": 10000,
+            "created": "2024-04-04T02:20:00.006Z",
+            "modified": "2024-04-04T05:11:15.247Z",
+            "headers": [],
+            "params": [],
+            "body": {
+                "type": "json",
+                "raw": "{\n    \"names\":\"Fernando Osmar Castro Martinez\",\n    \"email\":\"fernin9401@hotmail.com\"\n}",
+                "form": []
+            },
+            "tests": []
+        },
+        {
+            "_id": "43fed42b-8e0d-4332-8f60-39cdd8cca273",
+            "colId": "19f0318f-35c2-4e1e-a0a6-09a7ff3da212",
+            "containerId": "6678b3e3-380d-4a40-a314-7611ce09a068",
+            "name": "register user",
+            "url": "http://localhost:3000/auth/register",
+            "method": "POST",
+            "sortNum": 20000,
+            "created": "2024-04-07T04:09:56.973Z",
+            "modified": "2024-04-07T05:00:16.170Z",
+            "headers": [
+                {
+                    "name": "Code-Verify",
+                    "value": "422804"
+                }
+            ],
+            "params": [],
+            "body": {
+                "type": "json",
+                "raw": "{\n  \"email\":\"fernin9401@hotmail.com\",\n  \"password\":\"1200asdfasdfss\",\n  \"name\":\"Fernando Osmar\",\n  \"lastName\":\"Castro Martínez\"\n}",
+                "form": []
+            },
+            "tests": []
+        },
+        {
+            "_id": "3381f98d-19b5-4305-8b3f-e72759309477",
+            "colId": "19f0318f-35c2-4e1e-a0a6-09a7ff3da212",
+            "containerId": "6678b3e3-380d-4a40-a314-7611ce09a068",
+            "name": "get crimes",
+            "url": "http://localhost:3000/api/auth/crimes/VI",
+            "method": "GET",
+            "sortNum": 30000,
+            "created": "2024-04-07T04:11:48.081Z",
+            "modified": "2024-04-07T04:11:48.081Z",
+            "headers": [],
+            "params": [],
+            "tests": []
+        },
+        {
+            "_id": "a0652832-7fb5-43bd-a155-36d1581d44c2",
+            "colId": "19f0318f-35c2-4e1e-a0a6-09a7ff3da212",
+            "containerId": "6678b3e3-380d-4a40-a314-7611ce09a068",
+            "name": "get matters",
+            "url": "http://localhost:3000/api/auth/matters",
+            "method": "GET",
+            "sortNum": 40000,
+            "created": "2024-04-07T04:11:54.780Z",
+            "modified": "2024-04-07T04:11:54.780Z",
+            "headers": [],
+            "params": [],
+            "tests": []
+        }
+    ]
+}
