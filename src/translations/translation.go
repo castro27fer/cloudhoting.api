@@ -102,7 +102,7 @@ var translations_EN = []translation{
 		override:    false,
 	},
 	{
-		tag:         "conde_verify_invalid",
+		tag:         "code_verify_invalid",
 		translation: "invalid verification code",
 		override:    false,
 	},

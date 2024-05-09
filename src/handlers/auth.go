@@ -39,12 +39,16 @@ type Data struct {
 func HandlePostRegister(c echo.Context) (err error) {
 
 	//get request
-	AuthRequest := new(types.AuthRequest)
+	AuthRequest := c.Get("AuthRequest").(*types.AuthRequest)
+	fmt.Print("AuthRequest", AuthRequest)
+	// //valid request
+	// if err = validators.Request(AuthRequest, c); err != nil {
+	// 	// return err
+	// 	return c.JSON(http.StatusBadRequest, err)
 
-	//valid reqruest
-	if err = validators.Request(AuthRequest, c); err != nil {
-		return err
-	}
+	// }
+
+	fmt.Println("Register")
 
 	password := ""
 	//hash password
@@ -150,6 +154,8 @@ func HandleCodeVerify(c echo.Context) (err error) {
 	})
 
 	//send email with code activate
+
+	fmt.Printf("Nombres: %v\n", AuthRequest.Names)
 	if err = email.SendActivationEmail(mail.Address{
 		Name:    AuthRequest.Names,
 		Address: AuthRequest.Email,

@@ -1,6 +1,7 @@
 package validators
 
 import (
+	"fmt"
 	"net/http"
 
 	translations "github.com/ebarquero85/link-backend/src/translations"
@@ -23,10 +24,13 @@ func Init_Request_validation() *CustomValidator {
 func Request[T comparable](data *T, c echo.Context) (err error) {
 
 	if err = c.Bind(data); err != nil {
+
+		fmt.Print("error en bind \n")
 		return err
 	}
 
 	if err = c.Validate(data); err != nil {
+		fmt.Print("error en validate")
 		return err
 	}
 

@@ -15,19 +15,47 @@ import (
 	translate "github.com/ebarquero85/link-backend/src/translations"
 	translation "github.com/ebarquero85/link-backend/src/translations"
 	"github.com/ebarquero85/link-backend/src/types"
+	"github.com/ebarquero85/link-backend/src/validators"
 	"github.com/labstack/echo/v4"
 )
+
+// func Auth_validate(next echo.HandlerFunc) echo.HandlerFunc {
+// 	return func(c echo.Context) error {
+
+// 		data := new(types.AuthRequest)
+// 		if err := c.Bind(data); err != nil {
+// 			return err // Manejar el error adecuadamente según tus necesidades
+// 		}
+
+// 		if err := c.st(data); err != nil {
+// // 			return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+// 		}
+
+// 		// Almacenar los datos en el Context
+// 		c.Set("data", data)
+
+// 		return next(c)
+// 	}
+
+// }
 
 func VerifyCode(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
 
 		trans := translation.Get_translator()
-		message_error, _ := trans.T("conde_verify_invalid")
+		message_error, _ := trans.T("code_verify_invalid")
 
 		data := new(types.AuthRequest)
-		if err := c.Bind(data); err != nil {
-			return err // Manejar el error adecuadamente según tus necesidades
+
+		//valid request
+		if err := validators.Request(data, c); err != nil {
+			// return err
+			return c.JSON(http.StatusBadRequest, err)
+
 		}
+
+		// Almacenar los datos en el Context
+		c.Set("AuthRequest", data)
 
 		code := c.Request().Header.Get("Code-Verify")
 		if code == "" {
