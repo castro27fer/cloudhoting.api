@@ -63,12 +63,12 @@ var translations_ES = []translation{
 var translations_EN = []translation{
 	{
 		tag:         "Email",
-		translation: "Email",
+		translation: "email",
 		override:    false,
 	},
 	{
 		tag:         "Password",
-		translation: "Password",
+		translation: "password",
 		override:    false,
 	},
 	{

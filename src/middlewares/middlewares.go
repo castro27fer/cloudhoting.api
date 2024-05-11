@@ -50,6 +50,8 @@ func VerifyCode(next echo.HandlerFunc) echo.HandlerFunc {
 		//valid request
 		if err := validators.Request(data, c); err != nil {
 			// return err
+			fmt.Print("Error en el middleware: ", err)
+
 			return c.JSON(http.StatusBadRequest, err)
 
 		}
@@ -69,7 +71,6 @@ func VerifyCode(next echo.HandlerFunc) echo.HandlerFunc {
 		var codeVerify models.CodeVerifyModel
 		result := db.Databases.DBPostgresql.Instance.Where("email=? AND code=? AND status=?", data.Email, code, "NotVerify").First(&codeVerify)
 
-		//validar que no este vació
 		if result.Error != nil {
 			return c.JSON(http.StatusNotAcceptable, types.JsonResponse[string]{
 				Status:  strconv.Itoa(http.StatusNotAcceptable),
@@ -95,7 +96,7 @@ func LanguageUser(next echo.HandlerFunc) echo.HandlerFunc {
 	}
 }
 
-// Middleware para validar el token
+// Middleware to validate the token
 func ValidateTokenMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
 
@@ -105,11 +106,11 @@ func ValidateTokenMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 			return next(c)
 		}
 
-		if valido := handlers.VerifyJWT(c); valido {
+		if valid := handlers.VerifyJWT(c); valid {
 			return next(c)
 		}
 
-		return c.String(http.StatusUnauthorized, "Token INVALIDO")
+		return c.String(http.StatusUnauthorized, "Token Invalid")
 
 	}
 }

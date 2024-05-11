@@ -101,9 +101,11 @@ func HandleCodeVerify(c echo.Context) (err error) {
 	//get request
 	AuthRequest := new(types.CodeVerify)
 
-	//valid reqruest
-	if err = validators.Request(AuthRequest, c); err != nil {
-		return err
+	fmt.Print(AuthRequest)
+	if err := validators.Request(AuthRequest, c); err != nil {
+		// return err
+		fmt.Print("Errors of validate: ", err)
+		return c.JSON(http.StatusBadRequest, err)
 	}
 
 	var codes []models.CodeVerifyModel
@@ -134,7 +136,7 @@ func HandleCodeVerify(c echo.Context) (err error) {
 	}
 
 	if err = codeVerify.Create(); err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+		return c.JSON(http.StatusInternalServerError, err)
 	}
 
 	var expired_code string = os.Getenv("CODE_VERIFY_EXPIRATION")

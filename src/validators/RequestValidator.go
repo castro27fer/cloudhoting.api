@@ -14,28 +14,44 @@ type CustomValidator struct {
 	validator *validator.Validate
 }
 
+type ValidationError struct {
+	Status      int                   `json:"status"`
+	Message     string                `json:"message"`
+	Validations []types.Error_Request `json:"validations"`
+}
+
 func Init_Request_validation() *CustomValidator {
 
 	v := validator.New()
 
-	return &CustomValidator{validator: v} //descomentariar para activar las validaciones
+	return &CustomValidator{validator: v}
 }
 
-func Request[T comparable](data *T, c echo.Context) (err error) {
+func Request[T comparable](data *T, c echo.Context) *ValidationError {
 
-	if err = c.Bind(data); err != nil {
+	if err := c.Bind(data); err != nil {
 
-		fmt.Print("error en bind \n")
-		return err
+		// fmt.Print("error en bind \n")
+		return &ValidationError{
+			Status:      http.StatusBadRequest,
+			Message:     err.Error(),
+			Validations: []types.Error_Request{},
+		}
 	}
 
-	if err = c.Validate(data); err != nil {
-		fmt.Print("error en validate")
-		return err
+	if err := c.Validate(data); err != nil {
+		if validationErr, ok := err.(*ValidationError); ok {
+			validationErr.Status = http.StatusBadRequest
+			return validationErr
+		}
 	}
 
 	return nil
 
+}
+
+func (e *ValidationError) Error() string {
+	return e.Message
 }
 
 func (cv *CustomValidator) Validate(i interface{}) error {
@@ -54,6 +70,7 @@ func (cv *CustomValidator) Validate(i interface{}) error {
 		for _, err := range err.(validator.ValidationErrors) {
 
 			name := err.Field()
+			fmt.Print(err)
 			fieldName, found_field := trans2.T(name)
 			if found_field != nil {
 				fieldName = name
@@ -71,13 +88,10 @@ func (cv *CustomValidator) Validate(i interface{}) error {
 
 		}
 
-		return echo.NewHTTPError(http.StatusBadRequest, struct {
-			Message     string                `json:"message"`
-			Validations []types.Error_Request `json:"validations"`
-		}{
+		return &ValidationError{
 			Message:     message,
 			Validations: errors2,
-		})
+		}
 	}
 
 	return nil
