@@ -23,6 +23,11 @@ type AuthRequest struct {
 	LastName string `json:"lastName" validate:"required,min=3,max=40" example:"Zeledon"`
 }
 
+type LoginRequest struct {
+	Email    string `json:"email" validate:"required,email" example:"xample@mail.com"`
+	Password string `json:"password" validate:"required,min=6,max=24" example:"nSjYMS9wEz"`
+}
+
 type CollectionRequest struct {
 	Name string `json:"name" validate:"required,max=50" maxLength:"50" example:"Social Networks"`
 }

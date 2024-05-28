@@ -27,11 +27,10 @@ func Init_Request_validation() *CustomValidator {
 	return &CustomValidator{validator: v}
 }
 
-func Request[T comparable](data *T, c echo.Context) *ValidationError {
+func Request[T comparable](data *T, c echo.Context) error {
 
 	if err := c.Bind(data); err != nil {
 
-		// fmt.Print("error en bind \n")
 		return &ValidationError{
 			Status:      http.StatusBadRequest,
 			Message:     err.Error(),
@@ -40,6 +39,7 @@ func Request[T comparable](data *T, c echo.Context) *ValidationError {
 	}
 
 	if err := c.Validate(data); err != nil {
+
 		if validationErr, ok := err.(*ValidationError); ok {
 			validationErr.Status = http.StatusBadRequest
 			return validationErr

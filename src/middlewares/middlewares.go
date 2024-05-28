@@ -56,20 +56,21 @@ func VerifyCode(next echo.HandlerFunc) echo.HandlerFunc {
 
 		}
 
-		// Almacenar los datos en el Context
-		c.Set("AuthRequest", data)
-
 		code := c.Request().Header.Get("Code-Verify")
 		if code == "" {
 
-			return c.JSON(http.StatusBadRequest, types.JsonResponse[string]{
-				Status:  strconv.Itoa(http.StatusBadRequest),
+			fmt.Print("code empty: ", code)
+
+			return c.JSON(http.StatusNotAcceptable, types.JsonResponse[string]{
+				Status:  strconv.Itoa(http.StatusNotAcceptable),
 				Message: message_error,
 			})
 		}
 
 		var codeVerify models.CodeVerifyModel
 		result := db.Databases.DBPostgresql.Instance.Where("email=? AND code=? AND status=?", data.Email, code, "NotVerify").First(&codeVerify)
+
+		fmt.Print("Code Verify: ", codeVerify, result)
 
 		if result.Error != nil {
 			return c.JSON(http.StatusNotAcceptable, types.JsonResponse[string]{
@@ -80,6 +81,9 @@ func VerifyCode(next echo.HandlerFunc) echo.HandlerFunc {
 
 		codeVerify.Status = "Verified"
 		codeVerify.Update()
+
+		// save data in context
+		c.Set("AuthRequest", data)
 
 		return next(c)
 	}

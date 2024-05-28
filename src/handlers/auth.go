@@ -40,15 +40,6 @@ func HandlePostRegister(c echo.Context) (err error) {
 
 	//get request
 	AuthRequest := c.Get("AuthRequest").(*types.AuthRequest)
-	fmt.Print("AuthRequest", AuthRequest)
-	// //valid request
-	// if err = validators.Request(AuthRequest, c); err != nil {
-	// 	// return err
-	// 	return c.JSON(http.StatusBadRequest, err)
-
-	// }
-
-	fmt.Println("Register")
 
 	password := ""
 	//hash password
@@ -65,7 +56,6 @@ func HandlePostRegister(c echo.Context) (err error) {
 		Language:  config.LANGUAGE,
 	}
 
-	// var user2 models.UserModel
 	// Create User
 	if err = user.Create(); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
@@ -93,7 +83,6 @@ func HandlePostRegister(c echo.Context) (err error) {
 		Message: text,
 		// Data:    token,
 	})
-
 }
 
 func HandleCodeVerify(c echo.Context) (err error) {
@@ -190,15 +179,16 @@ func GenerateRandomNumber() {
 // @Router /auth/login [post]
 func HandlePostLogin(c echo.Context) (err error) {
 
-	AuthRequest := new(types.AuthRequest)
+	AuthRequest := new(types.LoginRequest)
 	user := new(models.UserModel)
 
 	if err = validators.Request(AuthRequest, c); err != nil {
-		return err
+		return c.JSON(http.StatusBadRequest, err)
 	}
 
 	// Find User
 	if err = db.Databases.DBPostgresql.Instance.Where("Email = ?", AuthRequest.Email).First(user).Error; err != nil {
+		fmt.Println("error en el email: ", err)
 		return c.JSON(http.StatusOK, types.JsonResponse[interface{}]{
 			Status:  messages.WARNING,
 			Message: messages.GetMessageTranslation("CREDENTIALS_INVALID"),
@@ -208,10 +198,12 @@ func HandlePostLogin(c echo.Context) (err error) {
 
 	// Verify Password
 	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(AuthRequest.Password)); err != nil {
-		return c.JSON(http.StatusOK, types.JsonResponse[interface{}]{
-			Status:  messages.WARNING,
-			Message: messages.GetMessageTranslation("CREDENTIALS_INVALID"),
-			Data:    nil,
+
+		fmt.Println("error en la contraseña: ", err)
+		return c.JSON(http.StatusBadRequest, &validators.ValidationError{
+			Status:      http.StatusBadRequest,
+			Message:     messages.GetMessageTranslation("CREDENTIALS_INVALID"),
+			Validations: []types.Error_Request{},
 		})
 	}
 
