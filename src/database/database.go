@@ -6,7 +6,7 @@ type BD struct {
 	DBPostgresql *Postgres
 }
 
-func Connect(dbType string) {
+func Connect(dbType string) BD {
 
 	Databases = &BD{}
 
@@ -19,4 +19,5 @@ func Connect(dbType string) {
 		panic("No dbType found for connection")
 	}
 
+	return *Databases
 }

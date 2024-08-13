@@ -12,6 +12,7 @@ import (
 	_ "github.com/ebarquero85/link-backend/docs/links" // Necesario para que funcione Swagger
 
 	"github.com/ebarquero85/link-backend/src/database"
+	"github.com/ebarquero85/link-backend/src/database/migration"
 	"github.com/ebarquero85/link-backend/src/handlers"
 	"github.com/ebarquero85/link-backend/src/middlewares"
 
@@ -26,9 +27,12 @@ func init() {
 		panic(err.Error())
 	}
 
-	database.Connect("postgres")
+	base := database.Connect("postgres")
+	if err := migration.Init(base, true); err != nil {
+		panic(err.Error())
+	}
 
-	// database.Databases.DBPostgresql.Instance.Migrator().AutoMigrate(&models.UserModel{}, &models.AccountModel{}, &models.CodeVerifyModel{})
+	// database.Databases.DBPostgresql.Instance.Migrator().AutoMigrate(&auth.UserModel{}, &auth.AccountModel{}, &auth.CodeVerifyModel{}, &auth.LoginModel{})
 }
 
 // @title Links App API
@@ -67,9 +71,9 @@ func main() {
 	e.POST("/auth/codeVerify", handlers.HandleCodeVerify)
 
 	// Collections
-	e.GET("/collections", handlers.HandleGetCollections)
-	e.POST("/collection", handlers.HandlePostCollection)
-	e.DELETE("/collection/:id", handlers.HandleDeleteCollection)
+	// e.GET("/collections", handlers.HandleGetCollections)
+	// e.POST("/collection", handlers.HandlePostCollection)
+	// e.DELETE("/collection/:id", handlers.HandleDeleteCollection)
 
 	// Categories
 	e.POST("/category", handlers.HandlePostCategory)

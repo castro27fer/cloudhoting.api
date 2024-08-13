@@ -5,6 +5,12 @@ type Error_Request struct {
 	Message string `json:"message"`
 }
 
+type ValidationError struct {
+	Status      int             `json:"status"`
+	Message     string          `json:"message"`
+	Validations []Error_Request `json:"validations"`
+}
+
 type JsonResponse[T interface{}] struct {
 	Status  string `json:"status"`
 	Message string `json:"message"`
@@ -26,6 +32,7 @@ type AuthRequest struct {
 type LoginRequest struct {
 	Email    string `json:"email" validate:"required,email" example:"xample@mail.com"`
 	Password string `json:"password" validate:"required,min=6,max=24" example:"nSjYMS9wEz"`
+	IP       string `json:"ip" validate:"required" example:"192.168.16.25"`
 }
 
 type CollectionRequest struct {

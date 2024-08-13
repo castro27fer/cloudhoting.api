@@ -106,6 +106,11 @@ var translations_EN = []translation{
 		translation: "invalid verification code",
 		override:    false,
 	},
+	{
+		tag:         "internal_server_error",
+		translation: "An error occurred, try again later",
+		override:    false,
+	},
 }
 
 type Languages struct {

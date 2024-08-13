@@ -12,7 +12,7 @@ import (
 	db "github.com/ebarquero85/link-backend/src/database"
 	"github.com/ebarquero85/link-backend/src/email"
 	"github.com/ebarquero85/link-backend/src/messages"
-	"github.com/ebarquero85/link-backend/src/models"
+	models "github.com/ebarquero85/link-backend/src/models/auth"
 	translation "github.com/ebarquero85/link-backend/src/translations"
 	"github.com/ebarquero85/link-backend/src/types"
 	"github.com/ebarquero85/link-backend/src/utils"
@@ -22,10 +22,9 @@ import (
 )
 
 type Data struct {
-	Token             string                   `json:"token"`
-	Languaje          string                   `json:"language"`
-	CollectionDefault int                      `json:"collection_default"`
-	Collections       []models.CollectionModel `json:"collections"`
+	Token       string               `json:"token"`
+	Language    string               `json:"language"`
+	Permissions []*models.Permission `json:"permissions"`
 }
 
 // @Summary Register
@@ -39,39 +38,35 @@ type Data struct {
 func HandlePostRegister(c echo.Context) (err error) {
 
 	//get request
-	AuthRequest := c.Get("AuthRequest").(*types.AuthRequest)
+	data := c.Get("AuthRequest").(*types.AuthRequest)
 
 	password := ""
 	//hash password
-	if password, err = utils.GeneratePasswordHash(AuthRequest.Password); err != nil {
+	if password, err = utils.GeneratePasswordHash(data.Password); err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 
+	db := db.Databases.DBPostgresql.Instance
+
+	profile := models.ProfileType{Name: "customer"}
+	db.First(&profile)
+
 	user := models.UserModel{
-		Name:      AuthRequest.Name,
-		LastName:  AuthRequest.LastName,
-		Email:     AuthRequest.Email,
-		Password:  password,
-		Confirmed: true, //config.DEFAULT_CONFIRMED,
-		Language:  config.LANGUAGE,
+		Name:     data.Name,
+		LastName: data.LastName,
+		Accounts: []models.AccountModel{
+			{
+				Email:       data.Email,
+				Password:    password,
+				Confirmed:   true,
+				Language:    config.LANGUAGE,
+				Permissions: profile.Permissions,
+			},
+		},
 	}
 
 	// Create User
 	if err = user.Create(); err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
-	}
-
-	fmt.Println(user)
-
-	//create account
-
-	account := models.AccountModel{
-		UserId:   uint(user.UserId),
-		Email:    AuthRequest.Email,
-		Password: password,
-	}
-
-	if err = account.Create(); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
@@ -88,19 +83,16 @@ func HandlePostRegister(c echo.Context) (err error) {
 func HandleCodeVerify(c echo.Context) (err error) {
 
 	//get request
-	AuthRequest := new(types.CodeVerify)
+	data := new(types.CodeVerify)
 
-	fmt.Print(AuthRequest)
-	if err := validators.Request(AuthRequest, c); err != nil {
-		// return err
-		fmt.Print("Errors of validate: ", err)
+	if err := validators.Request(data, c); err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}
 
 	var codes []models.CodeVerifyModel
 
 	//get all codes send with the email
-	db.Databases.DBPostgresql.Instance.Where("email=?", AuthRequest.Email).Find(&codes)
+	db.Databases.DBPostgresql.Instance.Where("email=?", data.Email).Find(&codes)
 
 	if len(codes) > 0 {
 
@@ -114,12 +106,12 @@ func HandleCodeVerify(c echo.Context) (err error) {
 
 	}
 
-	//generate code of six digito
+	//generate code of six digit
 	code := utils.GenerateRandomNumber()
 
 	//create new code
 	codeVerify := models.CodeVerifyModel{
-		Email:  AuthRequest.Email,
+		Email:  data.Email,
 		Code:   strconv.Itoa(code),
 		Status: "NotVerify",
 	}
@@ -130,7 +122,7 @@ func HandleCodeVerify(c echo.Context) (err error) {
 
 	var expired_code string = os.Getenv("CODE_VERIFY_EXPIRATION")
 
-	// Convertir el string a time.Duration
+	// Convert string to time.Duration
 	duration, err := time.ParseDuration(expired_code)
 
 	if err != nil {
@@ -145,16 +137,24 @@ func HandleCodeVerify(c echo.Context) (err error) {
 	})
 
 	//send email with code activate
+	trans := translation.Get_translator()
 
-	fmt.Printf("Nombres: %v\n", AuthRequest.Names)
 	if err = email.SendActivationEmail(mail.Address{
-		Name:    AuthRequest.Names,
-		Address: AuthRequest.Email,
+		Name:    data.Names,
+		Address: data.Email,
 	}, codeVerify.Code); err != nil {
+
+		// error_internal, _ := trans.T("internal_server_error")
+
+		// return c.JSON(http.StatusInternalServerError, validators.ValidationError{
+		// 	Status:      http.StatusInternalServerError,
+		// 	Message:     error_internal,
+		// 	Validations: []types.Error_Request{},
+		// })
+
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
-	trans := translation.Get_translator()
 	text, _ := trans.T("send_code")
 
 	return c.JSON(http.StatusOK, types.JsonResponse[string]{
@@ -179,15 +179,15 @@ func GenerateRandomNumber() {
 // @Router /auth/login [post]
 func HandlePostLogin(c echo.Context) (err error) {
 
-	AuthRequest := new(types.LoginRequest)
-	user := new(models.UserModel)
+	LoginRequest := new(types.LoginRequest)
+	account := new(models.AccountModel)
 
-	if err = validators.Request(AuthRequest, c); err != nil {
+	if err = validators.Request(LoginRequest, c); err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}
 
 	// Find User
-	if err = db.Databases.DBPostgresql.Instance.Where("Email = ?", AuthRequest.Email).First(user).Error; err != nil {
+	if err = db.Databases.DBPostgresql.Instance.Where("Email = ?", LoginRequest.Email).First(account).Error; err != nil {
 		fmt.Println("error en el email: ", err)
 		return c.JSON(http.StatusOK, types.JsonResponse[interface{}]{
 			Status:  messages.WARNING,
@@ -197,7 +197,7 @@ func HandlePostLogin(c echo.Context) (err error) {
 	}
 
 	// Verify Password
-	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(AuthRequest.Password)); err != nil {
+	if err := bcrypt.CompareHashAndPassword([]byte(account.Password), []byte(LoginRequest.Password)); err != nil {
 
 		fmt.Println("error en la contraseña: ", err)
 		return c.JSON(http.StatusBadRequest, &validators.ValidationError{
@@ -208,23 +208,24 @@ func HandlePostLogin(c echo.Context) (err error) {
 	}
 
 	// Generate token
-	token := GenerateJWT(user)
+	token := GenerateJWT(account)
 
 	// Save Login
 	login := models.LoginModel{
-		UserId: user.UserId,
+		AccountId: account.ID,
+		Token:     token,
+		IP:        LoginRequest.IP,
 	}
 
-	_ = login.Create() // No necestary check if error
+	_ = login.Create() // No need check if error
 
 	return c.JSON(http.StatusOK, types.JsonResponse[Data]{
 		Status:  messages.SUCCESS,
 		Message: "",
 		Data: Data{
-			Token:             token,
-			Languaje:          user.Language,
-			CollectionDefault: user.CollectionDefault,
-			Collections:       GetCollections(user.UserId),
+			Token:       token,
+			Language:    account.Language,
+			Permissions: account.Permissions,
 		},
 	})
 

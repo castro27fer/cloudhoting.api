@@ -7,7 +7,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/ebarquero85/link-backend/src/models"
+	models "github.com/ebarquero85/link-backend/src/models/auth"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/labstack/echo/v4"
 )
@@ -17,17 +17,17 @@ type JWTClaim struct {
 	jwt.RegisteredClaims
 }
 
-func GenerateJWT(User *models.UserModel) string {
+func GenerateJWT(User *models.AccountModel) string {
 
 	TOKEN_EXPIRATION_HOURS, _ := strconv.Atoi(os.Getenv("TOKEN_EXPIRATION_HOURS"))
 	JWT_KEY := os.Getenv("JWT_KEY")
 
-	duracion := time.Duration(TOKEN_EXPIRATION_HOURS) * time.Hour
+	time_expired := time.Duration(TOKEN_EXPIRATION_HOURS) * time.Hour
 
-	expirationTime := time.Now().Add(duracion)
+	expirationTime := time.Now().Add(time_expired)
 
 	claims := &JWTClaim{
-		UserId: User.UserId,
+		UserId: int(User.ID),
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(expirationTime),
 		},

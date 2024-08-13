@@ -11,7 +11,7 @@ import (
 	db "github.com/ebarquero85/link-backend/src/database"
 	"github.com/ebarquero85/link-backend/src/handlers"
 	"github.com/ebarquero85/link-backend/src/messages"
-	"github.com/ebarquero85/link-backend/src/models"
+	models "github.com/ebarquero85/link-backend/src/models/auth"
 	translate "github.com/ebarquero85/link-backend/src/translations"
 	translation "github.com/ebarquero85/link-backend/src/translations"
 	"github.com/ebarquero85/link-backend/src/types"
