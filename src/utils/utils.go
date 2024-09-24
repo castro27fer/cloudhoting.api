@@ -4,21 +4,19 @@ import (
 	"crypto/md5"
 	"encoding/hex"
 	"io"
-	"math/rand"
 	"strconv"
 
 	"github.com/labstack/echo/v4"
-	"golang.org/x/crypto/bcrypt"
 )
 
-func GeneratePasswordHash(password string) (string, error) {
-	hash, err := bcrypt.GenerateFromPassword([]byte(password), 10)
-	if err != nil {
-		return "", err
-	}
+// func GeneratePasswordHash(password string) (string, error) {
+// 	hash, err := bcrypt.GenerateFromPassword([]byte(password), 10)
+// 	if err != nil {
+// 		return "", err
+// 	}
 
-	return string(hash), nil
-}
+// 	return string(hash), nil
+// }
 
 func CreateMd5Hash(text string) string {
 	hasher := md5.New()
@@ -42,6 +40,6 @@ func GetParam(c echo.Context, name string) int {
 
 }
 
-func GenerateRandomNumber() int {
-	return rand.Intn(999999-100000) + 100000
-}
+// func GenerateRandomNumber() int {
+// 	return rand.Intn(999999-100000) + 100000
+// }

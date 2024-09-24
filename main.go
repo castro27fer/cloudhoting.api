@@ -65,7 +65,7 @@ func main() {
 	e.GET("/swagger/*", echoSwagger.WrapHandler) // http://localhost:3000/swagger/index.html
 
 	// Auth
-	e.POST("/auth/register", handlers.HandlePostRegister, middlewares.VerifyCode)
+	e.POST("/auth/register", handlers.HandlePostRegister)
 
 	e.POST("/auth/login", handlers.HandlePostLogin)
 	e.POST("/auth/codeVerify", handlers.HandleCodeVerify)

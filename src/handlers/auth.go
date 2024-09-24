@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"fmt"
+	"math/rand"
 	"net/http"
 	"net/mail"
 	"os"
@@ -15,7 +16,6 @@ import (
 	models "github.com/ebarquero85/link-backend/src/models/auth"
 	translation "github.com/ebarquero85/link-backend/src/translations"
 	"github.com/ebarquero85/link-backend/src/types"
-	"github.com/ebarquero85/link-backend/src/utils"
 	"github.com/ebarquero85/link-backend/src/validators"
 	"github.com/labstack/echo/v4"
 	"golang.org/x/crypto/bcrypt"
@@ -40,9 +40,8 @@ func HandlePostRegister(c echo.Context) (err error) {
 	//get request
 	data := c.Get("AuthRequest").(*types.AuthRequest)
 
-	password := ""
-	//hash password
-	if password, err = utils.GeneratePasswordHash(data.Password); err != nil {
+	password, err2 := bcrypt.GenerateFromPassword([]byte(data.Password), 10)
+	if err2 != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 
@@ -57,7 +56,7 @@ func HandlePostRegister(c echo.Context) (err error) {
 		Accounts: []models.AccountModel{
 			{
 				Email:       data.Email,
-				Password:    password,
+				Password:    string(password),
 				Confirmed:   true,
 				Language:    config.LANGUAGE,
 				Permissions: profile.Permissions,
@@ -107,7 +106,7 @@ func HandleCodeVerify(c echo.Context) (err error) {
 	}
 
 	//generate code of six digit
-	code := utils.GenerateRandomNumber()
+	code := rand.Intn(999999-100000) + 100000
 
 	//create new code
 	codeVerify := models.CodeVerifyModel{
