@@ -7,12 +7,14 @@ import (
 
 func Init(BD2 database.BD, load_data bool) error {
 
+	// create schema if not exists
+	BD2.DBPostgresql.Instance.Exec("CREATE SCHEMA IF NOT EXISTS auth")
+
 	err := BD2.DBPostgresql.Instance.Migrator().AutoMigrate(
+		&auth.ProfileType{},
 		&auth.UserModel{},
-		&auth.AccountModel{},
 		&auth.CodeVerifyModel{},
 		&auth.LoginModel{},
-		&auth.ProfileType{},
 	)
 
 	if err != nil {
@@ -51,11 +53,23 @@ func load_data_base() error {
 		{Description: "Change Password", KeySecret: "CHANGE_PASSWORD"},
 	}
 
+	countries := []auth.Country{
+		{Name: "Nicaragua", ID: "NI"},
+		{Name: "Estados Unidos", ID: "EU"},
+		{Name: "Rusia", ID: "RU"},
+		{Name: "China", ID: "CH"},
+		{Name: "Argentina", ID: "AR"},
+	}
+
 	if err := create(profile_types); err != nil {
 		return err
 	}
 
 	if err := create(permissions); err != nil {
+		return err
+	}
+
+	if err := create(countries); err != nil {
 		return err
 	}
 

@@ -18,7 +18,7 @@ type CodeVerifyModel struct {
 }
 
 func (CodeVerifyModel) TableName() string {
-	return "public.codeVerify"
+	return "auth.codeVerify"
 }
 
 func (CodeVerify *CodeVerifyModel) Create() error {

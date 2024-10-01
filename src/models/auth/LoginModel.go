@@ -8,18 +8,19 @@ import (
 )
 
 type LoginModel struct {
-	ID        uint   `gorm:"primaryKey"`
+	gorm.Model
+	UserID    uint   `gorm:"column:userId"`
 	Token     string `gorm:"column:token;type:varchar(1024);not null"`
 	IP        string `gorm:"column:ip;type:varchar(30);null"`
 	Active    bool   `gorm:"column:active;type:boolean; not null; default:true"`
-	AccountId uint
 	CreatedAt time.Time
 	UpdatedAt time.Time
 	DeletedAt gorm.DeletedAt `gorm:"index"`
+	User      UserModel
 }
 
 func (LoginModel) TableName() string {
-	return "public.logins"
+	return "auth.logins"
 }
 
 func (Login *LoginModel) Create() error {

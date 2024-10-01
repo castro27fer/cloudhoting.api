@@ -13,8 +13,9 @@ import (
 
 	"github.com/ebarquero85/link-backend/src/database"
 	"github.com/ebarquero85/link-backend/src/database/migration"
-	"github.com/ebarquero85/link-backend/src/handlers"
 	"github.com/ebarquero85/link-backend/src/middlewares"
+	"github.com/ebarquero85/link-backend/src/routes"
+	"github.com/ebarquero85/link-backend/src/services"
 
 	translation "github.com/ebarquero85/link-backend/src/translations"
 	requestValidation "github.com/ebarquero85/link-backend/src/validators"
@@ -28,9 +29,11 @@ func init() {
 	}
 
 	base := database.Connect("postgres")
-	if err := migration.Init(base, true); err != nil {
+	if err := migration.Init(base, false); err != nil {
 		panic(err.Error())
 	}
+
+	//instance rolAndPermissions service
 
 	// database.Databases.DBPostgresql.Instance.Migrator().AutoMigrate(&auth.UserModel{}, &auth.AccountModel{}, &auth.CodeVerifyModel{}, &auth.LoginModel{})
 }
@@ -51,6 +54,9 @@ func main() {
 	translation.Init_translate_default()
 	translation.Load_languages()
 
+	services.ProfilesServices.Start()
+	services.EmailService.Start()
+
 	e.Validator = requestValidation.Init_Request_validation()
 
 	// Middlewares
@@ -59,29 +65,11 @@ func main() {
 	e.Use(middleware.CORS())
 	e.Use(middlewares.ValidateTokenMiddleware)
 	e.Use(middlewares.LanguageUser)
-	// e.Use(middlewares.ErrorsLogMiddleware)
 
 	// Swagger
 	e.GET("/swagger/*", echoSwagger.WrapHandler) // http://localhost:3000/swagger/index.html
 
-	// Auth
-	e.POST("/auth/register", handlers.HandlePostRegister)
-
-	e.POST("/auth/login", handlers.HandlePostLogin)
-	e.POST("/auth/codeVerify", handlers.HandleCodeVerify)
-
-	// Collections
-	// e.GET("/collections", handlers.HandleGetCollections)
-	// e.POST("/collection", handlers.HandlePostCollection)
-	// e.DELETE("/collection/:id", handlers.HandleDeleteCollection)
-
-	// Categories
-	e.POST("/category", handlers.HandlePostCategory)
-
-	// Bookmarks
-	e.POST("/bookmark", handlers.HandlePostBookmark)
-	e.DELETE("/bookmark/:id", handlers.HandleDeleteBookmark)
-	e.PUT("/bookmark/:id", handlers.HandleUpdateBookmark)
+	routes.Router(e)
 
 	e.Logger.Fatal(e.Start(os.Getenv("LISTEN_PORT")))
 

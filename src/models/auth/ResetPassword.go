@@ -7,15 +7,16 @@ import (
 )
 
 type ResetPassword struct {
-	ID          uint   `gorm:"primaryKey"`
+	gorm.Model
 	Token       string `gorm:"column:token;type:varchar(1024);not null"`
 	PasswordOld string `gorm:"column:passwordOld;type:varchar(1024);not null"`
-	AccountId   uint
+	UserID      uint   `gorm:"column:passwordOld"`
 	CreatedAt   time.Time
 	UpdatedAt   time.Time
 	DeletedAt   gorm.DeletedAt `gorm:"index"`
+	User        UserModel
 }
 
 func (ResetPassword) TableName() string {
-	return "public.resetPasswords"
+	return "auth.resetPasswords"
 }

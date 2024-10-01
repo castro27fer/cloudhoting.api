@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"fmt"
 	"math/rand"
 	"net/http"
 	"net/mail"
@@ -14,11 +13,11 @@ import (
 	"github.com/ebarquero85/link-backend/src/email"
 	"github.com/ebarquero85/link-backend/src/messages"
 	models "github.com/ebarquero85/link-backend/src/models/auth"
+	services "github.com/ebarquero85/link-backend/src/services"
 	translation "github.com/ebarquero85/link-backend/src/translations"
 	"github.com/ebarquero85/link-backend/src/types"
 	"github.com/ebarquero85/link-backend/src/validators"
 	"github.com/labstack/echo/v4"
-	"golang.org/x/crypto/bcrypt"
 )
 
 type Data struct {
@@ -38,35 +37,39 @@ type Data struct {
 func HandlePostRegister(c echo.Context) (err error) {
 
 	//get request
-	data := c.Get("AuthRequest").(*types.AuthRequest)
+	data := new(types.AuthRequest)
 
-	password, err2 := bcrypt.GenerateFromPassword([]byte(data.Password), 10)
-	if err2 != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	if err = validators.Request(data, c); err != nil {
+		return err
 	}
 
-	db := db.Databases.DBPostgresql.Instance
+	profile := services.ProfilesServices.Get_rol_default()
 
-	profile := models.ProfileType{Name: "customer"}
-	db.First(&profile)
-
-	user := models.UserModel{
-		Name:     data.Name,
-		LastName: data.LastName,
-		Accounts: []models.AccountModel{
-			{
-				Email:       data.Email,
-				Password:    string(password),
-				Confirmed:   true,
-				Language:    config.LANGUAGE,
-				Permissions: profile.Permissions,
-			},
+	user := services.User{
+		UserModel: models.UserModel{
+			Name:        data.Name,
+			LastName:    data.LastName,
+			Email:       data.Email,
+			Password:    data.Password,
+			CountryID:   data.CountryId,
+			Confirmed:   false,
+			Language:    config.LANGUAGE,
+			ProfileType: profile,
 		},
 	}
 
 	// Create User
 	if err = user.Create(); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+
+	//generate token of activation
+	activation_account_token := services.JWTService.ActiveAccount.CreateToken(&user)
+
+	//send email of activation
+	email_error := services.EmailService.SendEmail(mail.Address{Name: user.FullName(), Address: user.Email}, "account activation", activation_account_token)
+	if email_error != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, email_error.Error())
 	}
 
 	trans := translation.Get_translator()
@@ -178,54 +181,55 @@ func GenerateRandomNumber() {
 // @Router /auth/login [post]
 func HandlePostLogin(c echo.Context) (err error) {
 
-	LoginRequest := new(types.LoginRequest)
-	account := new(models.AccountModel)
+	// 	LoginRequest := new(types.LoginRequest)
+	// 	account := new(models.AccountModel)
 
-	if err = validators.Request(LoginRequest, c); err != nil {
-		return c.JSON(http.StatusBadRequest, err)
-	}
+	// 	if err = validators.Request(LoginRequest, c); err != nil {
+	// 		return c.JSON(http.StatusBadRequest, err)
+	// 	}
 
-	// Find User
-	if err = db.Databases.DBPostgresql.Instance.Where("Email = ?", LoginRequest.Email).First(account).Error; err != nil {
-		fmt.Println("error en el email: ", err)
-		return c.JSON(http.StatusOK, types.JsonResponse[interface{}]{
-			Status:  messages.WARNING,
-			Message: messages.GetMessageTranslation("CREDENTIALS_INVALID"),
-			Data:    nil,
-		})
-	}
+	// 	// Find User
+	// 	if err = db.Databases.DBPostgresql.Instance.Where("Email = ?", LoginRequest.Email).First(account).Error; err != nil {
+	// 		fmt.Println("error en el email: ", err)
+	// 		return c.JSON(http.StatusOK, types.JsonResponse[interface{}]{
+	// 			Status:  messages.WARNING,
+	// 			Message: messages.GetMessageTranslation("CREDENTIALS_INVALID"),
+	// 			Data:    nil,
+	// 		})
+	// 	}
 
-	// Verify Password
-	if err := bcrypt.CompareHashAndPassword([]byte(account.Password), []byte(LoginRequest.Password)); err != nil {
+	// 	// Verify Password
+	// 	if err := bcrypt.CompareHashAndPassword([]byte(account.Password), []byte(LoginRequest.Password)); err != nil {
 
-		fmt.Println("error en la contraseña: ", err)
-		return c.JSON(http.StatusBadRequest, &validators.ValidationError{
-			Status:      http.StatusBadRequest,
-			Message:     messages.GetMessageTranslation("CREDENTIALS_INVALID"),
-			Validations: []types.Error_Request{},
-		})
-	}
+	// 		fmt.Println("error en la contraseña: ", err)
+	// 		return c.JSON(http.StatusBadRequest, &validators.ValidationError{
+	// 			Status:      http.StatusBadRequest,
+	// 			Message:     messages.GetMessageTranslation("CREDENTIALS_INVALID"),
+	// 			Validations: []types.Error_Request{},
+	// 		})
+	// 	}
 
-	// Generate token
-	token := GenerateJWT(account)
+	// 	// Generate token
+	// 	token := GenerateJWT(account)
 
-	// Save Login
-	login := models.LoginModel{
-		AccountId: account.ID,
-		Token:     token,
-		IP:        LoginRequest.IP,
-	}
+	// 	// Save Login
+	// 	login := models.LoginModel{
+	// 		AccountId: account.ID,
+	// 		Token:     token,
+	// 		IP:        LoginRequest.IP,
+	// 	}
 
-	_ = login.Create() // No need check if error
+	// 	_ = login.Create() // No need check if error
 
-	return c.JSON(http.StatusOK, types.JsonResponse[Data]{
-		Status:  messages.SUCCESS,
-		Message: "",
-		Data: Data{
-			Token:       token,
-			Language:    account.Language,
-			Permissions: account.Permissions,
-		},
-	})
+	// 	return c.JSON(http.StatusOK, types.JsonResponse[Data]{
+	// 		Status:  messages.SUCCESS,
+	// 		Message: "",
+	// 		Data: Data{
+	// 			Token:       token,
+	// 			Language:    account.Language,
+	// 			Permissions: account.Permissions,
+	// 		},
+	// 	})
 
+	return nil
 }

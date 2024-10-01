@@ -3,11 +3,9 @@ package handlers
 import (
 	"fmt"
 	"os"
-	"strconv"
 	"strings"
 	"time"
 
-	models "github.com/ebarquero85/link-backend/src/models/auth"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/labstack/echo/v4"
 )
@@ -17,35 +15,35 @@ type JWTClaim struct {
 	jwt.RegisteredClaims
 }
 
-func GenerateJWT(User *models.AccountModel) string {
+// func GenerateJWT(User *models.AccountModel) string {
 
-	TOKEN_EXPIRATION_HOURS, _ := strconv.Atoi(os.Getenv("TOKEN_EXPIRATION_HOURS"))
-	JWT_KEY := os.Getenv("JWT_KEY")
+// 	TOKEN_EXPIRATION_HOURS, _ := strconv.Atoi(os.Getenv("TOKEN_EXPIRATION_HOURS"))
+// 	JWT_KEY := os.Getenv("JWT_KEY")
 
-	time_expired := time.Duration(TOKEN_EXPIRATION_HOURS) * time.Hour
+// 	time_expired := time.Duration(TOKEN_EXPIRATION_HOURS) * time.Hour
 
-	expirationTime := time.Now().Add(time_expired)
+// 	expirationTime := time.Now().Add(time_expired)
 
-	claims := &JWTClaim{
-		UserId: int(User.ID),
-		RegisteredClaims: jwt.RegisteredClaims{
-			ExpiresAt: jwt.NewNumericDate(expirationTime),
-		},
-	}
+// 	claims := &JWTClaim{
+// 		UserId: int(User.ID),
+// 		RegisteredClaims: jwt.RegisteredClaims{
+// 			ExpiresAt: jwt.NewNumericDate(expirationTime),
+// 		},
+// 	}
 
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+// 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
-	jwtKey := []byte(JWT_KEY)
+// 	jwtKey := []byte(JWT_KEY)
 
-	tokenString, err := token.SignedString(jwtKey)
+// 	tokenString, err := token.SignedString(jwtKey)
 
-	if err != nil {
-		return ""
-	}
+// 	if err != nil {
+// 		return ""
+// 	}
 
-	return tokenString
+// 	return tokenString
 
-}
+// }
 
 func VerifyJWT(c echo.Context) bool {
 

@@ -23,10 +23,11 @@ type CodeVerify struct {
 }
 
 type AuthRequest struct {
-	Email    string `json:"email" validate:"required,email" example:"example@mail.com"`
-	Password string `json:"password" validate:"required,min=6,max=24" minLength:"6" maxLength:"24" example:"nSjYMS9wEz"`
-	Name     string `json:"name" validate:"required,min=3,max=40" example:"Jennifer"`
-	LastName string `json:"lastName" validate:"required,min=3,max=40" example:"Zeledon"`
+	Email     string `json:"email" validate:"required,email" example:"example@mail.com"`
+	Password  string `json:"password" validate:"required,min=6,max=24" minLength:"6" maxLength:"24" example:"nSjYMS9wEz"`
+	Name      string `json:"name" validate:"required,min=3,max=40" example:"Jennifer"`
+	LastName  string `json:"lastName" validate:"required,min=3,max=40" example:"Zeledon"`
+	CountryId string `json:"countryId" validate:"required,min=2" example:"NI"`
 }
 
 type LoginRequest struct {
